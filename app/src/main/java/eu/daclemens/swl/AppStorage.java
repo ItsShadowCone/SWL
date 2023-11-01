@@ -1,4 +1,4 @@
-package com.monstertoss.swl;
+package eu.daclemens.swl;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -13,15 +13,15 @@ public class AppStorage {
 
     private static final String TAG = "AppStorage";
 
-    private SerializableIntent[][][][] storage;
+    private final String[][][][] storage;
 
-    private SharedPreferences preferences;
+    private final SharedPreferences preferences;
 
     public AppStorage(Context context, int width, int height) {
         preferences = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
 
         // Load storage from preferences
-        storage = new SerializableIntent[width][height][width][height];
+        storage = new String[width][height][width][height];
 
         Log.d(TAG, "Loading apps...");
         int i = 0;
@@ -63,8 +63,7 @@ public class AppStorage {
                             if (key4 >= storage[key1][key2][key3].length)
                                 return;
 
-                            JSONObject object = layer4.getJSONObject(stringKey4);
-                            storage[key1][key2][key3][key4] = new SerializableIntent(object.getString("packageName"), object.getString("name"));
+                            storage[key1][key2][key3][key4] = layer4.getString(stringKey4);
                             i++;
                         }
                     }
@@ -76,11 +75,11 @@ public class AppStorage {
         Log.d(TAG, "  ... loaded " + i + " apps");
     }
 
-    public void set(int startX, int startY, int endX, int endY, SerializableIntent intent) {
+    public void set(int startX, int startY, int endX, int endY, String packageName) {
         if (startX < 0 || startY < 0 || endX < 0 || endY < 0)
             return;
 
-        storage[startX][startY][endX][endY] = intent;
+        storage[startX][startY][endX][endY] = packageName;
         serializeAndStore();
     }
 
@@ -92,7 +91,7 @@ public class AppStorage {
         serializeAndStore();
     }
 
-    public SerializableIntent find(int startX, int startY, int endX, int endY) {
+    public String find(int startX, int startY, int endX, int endY) {
         if (startX < 0 || startY < 0 || endX < 0 || endY < 0)
             return null;
         return storage[startX][startY][endX][endY];
@@ -127,11 +126,7 @@ public class AppStorage {
                                     layer3.put("" + c, layer4);
                                 }
 
-                                JSONObject object = new JSONObject();
-                                object.put("packageName", storage[a][b][c][d].packageName);
-                                object.put("name", storage[a][b][c][d].name);
-
-                                layer4.put("" + d, object);
+                                layer4.put("" + d, storage[a][b][c][d]);
                                 i++;
                             }
                         }

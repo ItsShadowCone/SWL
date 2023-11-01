@@ -1,12 +1,14 @@
-package com.monstertoss.swl;
+package eu.daclemens.swl;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,26 +18,24 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class ListActivity extends Activity {
+public class ListActivity extends BaseActivity {
 
     private static final String TAG = "ListActivity";
 
     public class AppDetail {
-        AppDetail(ResolveInfo info) {
+        AppDetail(ApplicationInfo info) {
             label = info.loadLabel(manager).toString();
-            packageName = info.activityInfo.packageName;
-            name = info.activityInfo.name;
-            icon = info.activityInfo.loadIcon(manager);
+            packageName = info.packageName;
+            icon = info.loadIcon(manager);
         }
 
         String label;
         String packageName;
-        String name;
         Drawable icon;
     }
 
@@ -50,18 +50,15 @@ public class ListActivity extends Activity {
         manager = getPackageManager();
         apps = new ArrayList<>();
 
-        List<ResolveInfo> availableActivities = manager.queryIntentActivities(new Intent(Intent.ACTION_MAIN, null).addCategory(Intent.CATEGORY_LAUNCHER), 0);
-        for (ResolveInfo info : availableActivities) {
-            apps.add(new AppDetail(info));
-        }
-        Collections.sort(apps, new Comparator<AppDetail>() {
-            @Override
-            public int compare(AppDetail o1, AppDetail o2) {
-                return o1.label.compareTo(o2.label);
+        List<ApplicationInfo> availableActivities = manager.getInstalledApplications(0);
+        for (ApplicationInfo info : availableActivities) {
+            if(manager.getLaunchIntentForPackage(info.packageName) != null) {
+                apps.add(new AppDetail(info));
             }
-        });
+        }
+        apps.sort(Comparator.comparing(o -> o.label, Collator.getInstance()));
 
-        ArrayAdapter<AppDetail> adapter = new ArrayAdapter<AppDetail>(this, R.layout.item_list, apps) {
+        ArrayAdapter<AppDetail> adapter = new ArrayAdapter<>(this, R.layout.item_list, apps) {
             @Override
             @NonNull
             public View getView(int position, View convertView, @NonNull ViewGroup parent) {
@@ -78,22 +75,18 @@ public class ListActivity extends Activity {
         };
 
         GridView gridView = findViewById(R.id.gridView);
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = getIntent();
-                Mode mode = (Mode) intent.getSerializableExtra("mode");
+        gridView.setOnItemClickListener((parent, view, position, id) -> {
+            Intent intent = getIntent();
+            Mode mode = (Mode) intent.getSerializableExtra("mode");
 
-                switch (mode) {
-                    case DEFAULT:
-                        Log.d(TAG, "Launching: " + apps.get(position).packageName);
-                        startActivity(new SerializableIntent(apps.get(position).packageName, apps.get(position).name).getIntent());
-                        break;
-
-                    case ADDING:
-                        setResult(RESULT_OK, getIntent().putExtra("packageName", apps.get(position).packageName).putExtra("name", apps.get(position).name));
-                        finish();
-                        break;
+            switch (mode) {
+                case DEFAULT -> {
+                    Log.d(TAG, "Launching: " + apps.get(position).packageName);
+                    startApp(apps.get(position).packageName);
+                }
+                case ADDING -> {
+                    setResult(RESULT_OK, getIntent().putExtra("packageName", apps.get(position).packageName));
+                    finish();
                 }
             }
         });

@@ -1,4 +1,4 @@
-package com.monstertoss.swl;
+package eu.daclemens.swl;
 
 import android.graphics.Point;
 

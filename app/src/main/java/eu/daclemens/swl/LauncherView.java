@@ -1,4 +1,4 @@
-package com.monstertoss.swl;
+package eu.daclemens.swl;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -9,7 +9,7 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.drawable.Drawable;
-import android.support.v4.graphics.drawable.DrawableCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -18,27 +18,27 @@ import java.util.Collections;
 import java.util.Comparator;
 
 public class LauncherView extends View {
-    private Path mPath;
+    private final Path mPath;
 
-    private ArrayList<Dot> dots;
-    private int rows;
-    private int columns;
+    private final ArrayList<Dot> dots;
+    private final int rows;
+    private final int columns;
 
-    private int margin;
-    private int color;
-    private int dotSize;
+    private final int margin;
+    private final int color;
+    private final int dotSize;
 
     private int drawableWidth;
 
     private Dot startDot;
     private Dot endDot;
 
-    private Paint dotPaint;
-    private Paint mPaint;
+    private final Paint dotPaint;
+    private final Paint mPaint;
 
-    private AppStorage storage;
-    private PackageManager packageManager;
-    private LaunchCallback callback;
+    private final AppStorage storage;
+    private final PackageManager packageManager;
+    private final LaunchCallback callback;
 
     ColorMatrixColorFilter greyScaleFilter;
 
@@ -121,10 +121,10 @@ public class LauncherView extends View {
                 int doty = dots.get(x * rows + y).y;
 
                 if (startDot.isValid() && !(x == startDot.iX && y == startDot.iY)) {
-                    SerializableIntent intent = storage.find(startDot.iX, startDot.iY, x, y);
-                    if (intent != null) {
+                    String packageName = storage.find(startDot.iX, startDot.iY, x, y);
+                    if (packageName != null) {
                         try {
-                            Drawable icon = DrawableCompat.wrap(packageManager.getActivityIcon(intent.getIntent()));
+                            Drawable icon = DrawableCompat.wrap(packageManager.getApplicationIcon(packageName));
                             icon.mutate();
                             if (x != endDot.iX || y != endDot.iY)
                                 icon.setColorFilter(greyScaleFilter);
@@ -217,18 +217,18 @@ public class LauncherView extends View {
         float y = event.getY();
 
         switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_DOWN -> {
                 if (touch_start(x, y))
                     invalidate();
-                break;
-            case MotionEvent.ACTION_MOVE:
+            }
+            case MotionEvent.ACTION_MOVE -> {
                 if (touch_move(x, y))
                     invalidate();
-                break;
-            case MotionEvent.ACTION_UP:
+            }
+            case MotionEvent.ACTION_UP -> {
                 if (touch_up())
                     invalidate();
-                break;
+            }
         }
         return true;
     }

@@ -1,4 +1,4 @@
-package com.monstertoss.swl;
+package eu.daclemens.swl;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -10,7 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-public class HomeActivity extends Activity implements LauncherView.LaunchCallback {
+public class HomeActivity extends BaseActivity implements LauncherView.LaunchCallback {
 
     private static final String TAG = "HomeActivity";
     private static final int REQUEST_CODE_ADDING = 1;
@@ -51,10 +51,8 @@ public class HomeActivity extends Activity implements LauncherView.LaunchCallbac
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_FULLSCREEN;
-
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-            uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
 
         decorView.setSystemUiVisibility(uiOptions);
     }
@@ -113,7 +111,7 @@ public class HomeActivity extends Activity implements LauncherView.LaunchCallbac
     }
 
     public void launch(Dot start, Dot end) {
-        Log.d(TAG, "Launching: " + start + " => " + end);
+        Log.d(TAG, "Triggering: " + start + " => " + end);
 
         if (start.iX == 0 && start.iY == rows - 1 && end.iX == columns - 1 && end.iY == rows - 1) { // Top left => Top right.
             if (mode == Mode.ADDING)
@@ -169,10 +167,11 @@ public class HomeActivity extends Activity implements LauncherView.LaunchCallbac
     private void handle(int startX, int startY, int endX, int endY) {
         switch (mode) {
             case DEFAULT:
-                SerializableIntent intent = storage.find(startX, startY, endX, endY);
-                if (intent == null)
+                String packageName = storage.find(startX, startY, endX, endY);
+                if (packageName == null)
                     return;
-                sendIntent(intent);
+                Log.d(TAG, "Launching: " + packageName);
+                startApp(packageName);
                 break;
 
             case ADDING:
@@ -185,15 +184,10 @@ public class HomeActivity extends Activity implements LauncherView.LaunchCallbac
         }
     }
 
-    private void sendIntent(SerializableIntent intent) {
-        Log.d(TAG, "Launching: " + intent.packageName);
-        startActivity(intent.getIntent());
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_ADDING && resultCode == RESULT_OK && data.getSerializableExtra("mode") == Mode.ADDING) {
-            storage.set(data.getIntExtra("startX", -1), data.getIntExtra("startY", -1), data.getIntExtra("endX", -1), data.getIntExtra("endY", -1), new SerializableIntent(data.getStringExtra("packageName"), data.getStringExtra("name")));
+            storage.set(data.getIntExtra("startX", -1), data.getIntExtra("startY", -1), data.getIntExtra("endX", -1), data.getIntExtra("endY", -1), data.getStringExtra("packageName"));
         }
     }
 }

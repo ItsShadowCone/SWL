@@ -13,4 +13,4 @@
     android:numColumns="auto_fit"
     android:stretchMode="columnWidth"
     android:verticalSpacing="20dp"
-    tools:context="com.monstertoss.swl.ListActivity" />
+    tools:context="eu.daclemens.swl.ListActivity" />

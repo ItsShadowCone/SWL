@@ -1,4 +1,4 @@
-package com.monstertoss.swl;
+package eu.daclemens.swl;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -30,11 +30,11 @@ public class SettingsActivity extends Activity {
             }
         });
 
-        applySeekBarStuff((CustomSeekbar) findViewById(R.id.columns), "columns", 5);
-        applySeekBarStuff((CustomSeekbar) findViewById(R.id.rows), "rows", 3);
-        applySeekBarStuff((CustomSeekbar) findViewById(R.id.margin), "margin", 70);
-        applySeekBarStuff((CustomSeekbar) findViewById(R.id.dotSize), "dotSize", 10);
-        applySeekBarStuff((CustomSeekbar) findViewById(R.id.lineSize), "lineSize", 8);
+        applySeekBarStuff(findViewById(R.id.columns), "columns", 5);
+        applySeekBarStuff(findViewById(R.id.rows), "rows", 3);
+        applySeekBarStuff(findViewById(R.id.margin), "margin", 70);
+        applySeekBarStuff(findViewById(R.id.dotSize), "dotSize", 10);
+        applySeekBarStuff(findViewById(R.id.lineSize), "lineSize", 8);
 
         CustomSeekbar colorHue = findViewById(R.id.colorHue);
         int color = settings.getInt("color", Color.parseColor(getString(R.string.defaultColor)));

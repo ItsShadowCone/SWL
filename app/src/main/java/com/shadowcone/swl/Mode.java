@@ -1,4 +1,4 @@
-package com.monstertoss.swl;
+package com.shadowcone.swl;
 
 public enum Mode {
     DEFAULT,

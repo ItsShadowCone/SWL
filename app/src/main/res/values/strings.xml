@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SWL</string>
+    <string name="app_name">SWL 2</string>
     <string name="mode_default">Mode: Default</string>
     <string name="mode_adding">Mode: Adding</string>
     <string name="mode_removing">Mode: Removing</string>
